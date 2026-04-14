@@ -14,7 +14,9 @@
   font-size: 0.875rem;
   color: #64748b;
   text-transform: capitalize;
-  transition: background 0.1s ease, color 0.1s ease;
+  transition:
+    background 0.1s ease,
+    color 0.1s ease;
 }
 
 .filter-button:hover {

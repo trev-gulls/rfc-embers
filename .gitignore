@@ -26,3 +26,6 @@
 
 # git worktrees
 .worktrees/
+
+# claude code
+.claude/

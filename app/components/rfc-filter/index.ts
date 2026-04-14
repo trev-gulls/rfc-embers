@@ -11,7 +11,12 @@ interface Signature {
   };
 }
 
-export const ALL_STATUSES: RfcStatus[] = ['proposed', 'accepted', 'released', 'closed'];
+export const ALL_STATUSES: RfcStatus[] = [
+  'proposed',
+  'accepted',
+  'released',
+  'closed',
+];
 
 export default class RfcFilterComponent extends Component<Signature> {
   get statuses(): RfcStatus[] {

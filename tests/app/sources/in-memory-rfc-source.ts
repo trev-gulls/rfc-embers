@@ -1,5 +1,8 @@
 import type RfcGateway from 'rfc-embers/gateways/rfc-gateway';
-import type { JsonApiDocument, JsonApiResource } from 'rfc-embers/gateways/rfc-gateway';
+import type {
+  JsonApiDocument,
+  JsonApiResource,
+} from 'rfc-embers/gateways/rfc-gateway';
 
 const FIXTURES: JsonApiDocument = {
   data: [

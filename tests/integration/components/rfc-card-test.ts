@@ -38,7 +38,9 @@ module('Integration | Component | rfc-card', function (hooks) {
     await render(hbs`<RfcCard @rfc={{this.rfc}} />`);
     await click('[data-test-expand-button]');
     assert.dom('[data-test-rfc-summary]').exists();
-    assert.dom('[data-test-rfc-summary]').containsText('Ship native TypeScript types');
+    assert
+      .dom('[data-test-rfc-summary]')
+      .containsText('Ship native TypeScript types');
   });
 
   test('clicking expand again hides the summary', async function (assert) {

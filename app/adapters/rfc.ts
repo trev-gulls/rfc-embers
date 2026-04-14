@@ -10,7 +10,7 @@ export default class RfcAdapter extends JSONAPIAdapter {
   override async query(
     _store: unknown,
     _type: unknown,
-    params: Record<string, unknown>
+    params: Record<string, unknown>,
   ): Promise<unknown> {
     return this.gateway.fetchAll(params);
   }
@@ -18,7 +18,7 @@ export default class RfcAdapter extends JSONAPIAdapter {
   override async findRecord(
     _store: unknown,
     _type: unknown,
-    id: string
+    id: string,
   ): Promise<unknown> {
     return this.gateway.fetchOne(id);
   }

@@ -15,7 +15,7 @@ module('Integration | Component | rfc-filter', function (hooks) {
 
   test('it renders all status filter buttons', async function (assert) {
     await render(
-      hbs`<RfcFilter @activeStatus={{this.activeStatus}} @onFilterChange={{this.onFilterChange}} />`
+      hbs`<RfcFilter @activeStatus={{this.activeStatus}} @onFilterChange={{this.onFilterChange}} />`,
     );
     assert.dom('[data-test-filter-button="all"]').exists();
     assert.dom('[data-test-filter-button="proposed"]').exists();
@@ -26,9 +26,11 @@ module('Integration | Component | rfc-filter', function (hooks) {
 
   test('"All" button is active when no filter is set', async function (assert) {
     await render(
-      hbs`<RfcFilter @activeStatus={{null}} @onFilterChange={{this.onFilterChange}} />`
+      hbs`<RfcFilter @activeStatus={{null}} @onFilterChange={{this.onFilterChange}} />`,
     );
-    assert.dom('[data-test-filter-button="all"]').hasClass('filter-button--active');
+    assert
+      .dom('[data-test-filter-button="all"]')
+      .hasClass('filter-button--active');
   });
 
   test('clicking a status button calls onFilterChange with that status', async function (assert) {
@@ -37,7 +39,7 @@ module('Integration | Component | rfc-filter', function (hooks) {
       assert.strictEqual(status, 'proposed');
     };
     await render(
-      hbs`<RfcFilter @activeStatus={{null}} @onFilterChange={{this.onFilterChange}} />`
+      hbs`<RfcFilter @activeStatus={{null}} @onFilterChange={{this.onFilterChange}} />`,
     );
     await click('[data-test-filter-button="proposed"]');
   });
@@ -48,7 +50,7 @@ module('Integration | Component | rfc-filter', function (hooks) {
       assert.strictEqual(status, null);
     };
     await render(
-      hbs`<RfcFilter @activeStatus="proposed" @onFilterChange={{this.onFilterChange}} />`
+      hbs`<RfcFilter @activeStatus="proposed" @onFilterChange={{this.onFilterChange}} />`,
     );
     await click('[data-test-filter-button="proposed"]');
   });
