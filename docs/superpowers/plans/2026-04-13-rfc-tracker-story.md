@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build an Ember.js RFC tracker as an interview artifact for the Optro Senior SWE II – Frontend (Web Frameworks) role, demonstrating modern Ember patterns, hexagonal architecture, and the `ember-scoped-css` package that the team maintains.
+**Goal:** Build an Ember.js RFC tracker demonstrating modern Ember patterns, hexagonal architecture, and scoped CSS.
 
 **Architecture:** Hexagonal port/adapter pattern with `RfcGateway` as the port, `GitHubRfcSource` and `InMemoryRfcSource` as swappable implementations, and `RfcAdapter` bridging EmberData to the gateway. Routes use `store.request(query(...))` — the modern EmberData 5 request builder. Components are Glimmer-only with `ember-scoped-css` for encapsulated styles.
 
@@ -18,9 +18,9 @@
 - `app/models/rfc.ts` — `Rfc` model with EmberData attrs + `RfcStatus` type
 - `app/models/author.ts` — `Author` model
 - `app/gateways/rfc-gateway.ts` — `RfcGateway` interface + shared JSON:API types
-- `app/sources/in-memory-rfc-source.ts` — fixture data, no network
+- `tests/app/sources/in-memory-rfc-source.ts` — fixture data, no network (test-only)
 - `app/sources/github-rfc-source.ts` — fetches GitHub Issues API, translates to JSON:API
-- `app/adapters/rfc.ts` — extends `JSONAPIAdapter`, delegates to `source:rfc` gateway
+- `app/adapters/rfc-ember-adapter.ts` — extends `JSONAPIAdapter`, delegates to `source:rfc` gateway
 - `app/serializers/rfc.ts` — extends `JSONAPISerializer` (no customization needed)
 - `app/routes/rfcs.ts` — `/rfcs` list route, uses `store.request(query(...))`
 - `app/routes/rfc.ts` — `/rfcs/:rfc_id` detail route, uses `store.request(findRecord(...))`
@@ -38,15 +38,15 @@
 - `app/components/rfc-filter/index.css` — pill-style filter buttons (scoped)
 
 **Tests**
-- `tests/unit/models/rfc-test.ts`
-- `tests/unit/models/author-test.ts`
-- `tests/unit/sources/in-memory-rfc-source-test.ts`
-- `tests/unit/sources/github-rfc-source-test.ts`
-- `tests/integration/components/status-badge-test.ts`
-- `tests/integration/components/rfc-card-test.ts`
-- `tests/integration/components/rfc-filter-test.ts`
-- `tests/acceptance/rfcs-test.ts`
-- `tests/acceptance/rfc-test.ts`
+- `tests/unit/models/rfc-test.ts` — verifies Rfc model attributes are readable after createRecord; no network
+- `tests/unit/models/author-test.ts` — verifies Author model attributes; no network
+- `tests/unit/sources/in-memory-rfc-source-test.ts` — verifies fixture shape matches the JsonApiDocument contract; covers fetchAll and fetchOne including error case
+- `tests/unit/sources/github-rfc-source-test.ts` — stubs globalThis.fetch; verifies GitHub Issues → JSON:API translation and label-to-status mapping without hitting the network
+- `tests/integration/components/status-badge-test.ts` — renders StatusBadge in a real DOM context; asserts text content and CSS class per status value
+- `tests/integration/components/rfc-card-test.ts` — renders RfcCard with a stub RFC; asserts expand/collapse toggle behavior via click
+- `tests/integration/components/rfc-filter-test.ts` — renders RfcFilter; asserts all status buttons render, active state reflects @activeStatus, and onFilterChange is called with the correct value
+- `tests/acceptance/rfcs-test.ts` — visits /rfcs with InMemoryRfcSource registered; asserts cards render and status filter narrows the list
+- `tests/acceptance/rfc-test.ts` — visits /rfcs/724; asserts title, number, author, summary, and status badge render correctly
 
 ---
 
@@ -268,7 +268,7 @@ git commit -m "feat: add Rfc and Author EmberData models"
 
 **Files:**
 - Create: `app/gateways/rfc-gateway.ts`
-- Create: `app/sources/in-memory-rfc-source.ts`
+- Create: `tests/app/sources/in-memory-rfc-source.ts`
 - Create: `tests/unit/sources/in-memory-rfc-source-test.ts`
 
 - [ ] **Step 1: Create the RfcGateway interface**
@@ -302,7 +302,7 @@ Create `tests/unit/sources/in-memory-rfc-source-test.ts`:
 
 ```typescript
 import { module, test } from 'qunit';
-import InMemoryRfcSource from 'rfc-tracker/sources/in-memory-rfc-source';
+import InMemoryRfcSource from 'rfc-tracker/tests/app/sources/in-memory-rfc-source';
 import type { JsonApiResource } from 'rfc-tracker/gateways/rfc-gateway';
 
 module('Unit | Source | InMemoryRfcSource', function () {
@@ -359,7 +359,7 @@ Expected: FAIL — module not found.
 
 - [ ] **Step 4: Implement InMemoryRfcSource**
 
-Create `app/sources/in-memory-rfc-source.ts`:
+Create `tests/app/sources/in-memory-rfc-source.ts`:
 
 ```typescript
 import type RfcGateway from '../gateways/rfc-gateway';
@@ -453,7 +453,7 @@ Expected: all 5 tests PASS.
 - [ ] **Step 6: Commit gateway and InMemoryRfcSource**
 
 ```bash
-git add app/gateways/ app/sources/in-memory-rfc-source.ts tests/unit/sources/in-memory-rfc-source-test.ts
+git add app/gateways/ tests/app/sources/in-memory-rfc-source.ts tests/unit/sources/in-memory-rfc-source-test.ts
 git commit -m "feat: add RfcGateway interface and InMemoryRfcSource"
 ```
 
@@ -462,7 +462,7 @@ git commit -m "feat: add RfcGateway interface and InMemoryRfcSource"
 ### Task 4: RfcAdapter, Serializer, and Source Registration
 
 **Files:**
-- Create: `app/adapters/rfc.ts`
+- Create: `app/adapters/rfc-ember-adapter.ts`
 - Create: `app/serializers/rfc.ts`
 - Create: `app/sources/github-rfc-source.ts` (placeholder)
 - Modify: `app/app.ts`
@@ -470,15 +470,15 @@ git commit -m "feat: add RfcGateway interface and InMemoryRfcSource"
 - [ ] **Step 1: Generate adapter and serializer stubs**
 
 ```bash
-npx ember-cli generate adapter rfc
+npx ember-cli generate adapter rfc-ember-adapter
 npx ember-cli generate serializer rfc
 ```
 
-Expected: creates stubs in `app/adapters/rfc.ts` and `app/serializers/rfc.ts`.
+Expected: creates stubs in `app/adapters/rfc-ember-adapter.ts` and `app/serializers/rfc.ts`.
 
 - [ ] **Step 2: Implement RfcAdapter**
 
-Replace `app/adapters/rfc.ts`:
+Replace `app/adapters/rfc-ember-adapter.ts`:
 
 ```typescript
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
@@ -1179,7 +1179,7 @@ Replace `tests/acceptance/rfcs-test.ts`:
 import { module, test } from 'qunit';
 import { setupApplicationTest } from 'ember-qunit';
 import { visit, currentURL, click } from '@ember/test-helpers';
-import InMemoryRfcSource from 'rfc-tracker/sources/in-memory-rfc-source';
+import InMemoryRfcSource from 'rfc-tracker/tests/app/sources/in-memory-rfc-source';
 
 module('Acceptance | rfcs', function (hooks) {
   setupApplicationTest(hooks);
@@ -1329,7 +1329,7 @@ Create `tests/acceptance/rfc-test.ts`:
 import { module, test } from 'qunit';
 import { setupApplicationTest } from 'ember-qunit';
 import { visit, currentURL } from '@ember/test-helpers';
-import InMemoryRfcSource from 'rfc-tracker/sources/in-memory-rfc-source';
+import InMemoryRfcSource from 'rfc-tracker/tests/app/sources/in-memory-rfc-source';
 
 module('Acceptance | rfc detail', function (hooks) {
   setupApplicationTest(hooks);

@@ -30,19 +30,19 @@ Not started. Scaffold not run. Directory is empty.
 
 | Decision | Choice | Reason |
 |----------|--------|--------|
-| Framework | Ember.js v5 + TypeScript | The role targets the Web Frameworks team — matching their stack is the point |
+| Framework | Ember.js v5 + TypeScript | Opinionated conventions reduce decision fatigue; first-class TypeScript support |
 | Package manager | npm | Ember CLI depends on Node internally; keeping the toolchain consistent avoids a dual-runtime setup |
-| Data layer | EmberData + JSON:API, `store.request()` builder | Modern Ember pattern; the legacy `findAll`/`findRecord` API signals an outdated tutorial |
-| Component styles | `ember-scoped-css` | The team maintains this package; using it shows you did the homework |
-| Component style | Glimmer only | No `Component.extend` — the team works in modern Ember |
-| Data source | Live GitHub API via hexagonal gateway | Real data from a source the team knows; demonstrates port/gateway pattern and JSON:API translation |
+| Data layer | EmberData + JSON:API, `store.request()` builder | Modern Ember pattern; decouples routes from the legacy adapter API surface |
+| Component styles | `ember-scoped-css` | CSS encapsulated per-component at the framework level; prevents class name collisions without build configuration |
+| Component style | Glimmer only | Glimmer components are the current Ember standard; typed signatures and `@tracked` reactivity |
+| Data source | Live GitHub API via hexagonal gateway | Public API maps naturally to the RFC domain; port/adapter pattern decouples transport from EmberData |
 | Architecture | Hexagonal — `RfcGateway` port with swappable sources | Decouples EmberData from GitHub; `InMemoryRfcSource` makes tests fast and deterministic |
 
 ---
 
 ## What to Build
 
-An RFC tracker displaying Ember RFCs (or mock data shaped like them). Domain is intentionally meta — signals interest in the framework ecosystem.
+An RFC tracker displaying Ember RFCs (or mock data shaped like them).
 
 ### Models
 
@@ -87,7 +87,7 @@ app/
 │   ├── github-rfc-source.ts    # GitHubRfcSource implements RfcGateway
 │   └── in-memory-rfc-source.ts # InMemoryRfcSource implements RfcGateway
 └── adapters/
-    └── rfc.ts                  # RfcEmberAdapter extends Adapter, calls RfcGateway
+    └── rfc-ember-adapter.ts    # RfcEmberAdapter extends Adapter, calls RfcGateway
 ```
 
 `RfcGateway` is a plain TypeScript interface — no Ember dependencies. `RfcEmberAdapter` owns the Ember boundary and delegates data fetching entirely to whichever `RfcGateway` implementation is injected.
