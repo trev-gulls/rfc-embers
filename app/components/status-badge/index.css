@@ -1,0 +1,29 @@
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status--proposed {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status--accepted {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.status--released {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+}
+
+.status--closed {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
