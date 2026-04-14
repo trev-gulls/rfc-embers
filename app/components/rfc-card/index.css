@@ -1,0 +1,66 @@
+.card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #fff;
+  transition: box-shadow 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rfc-number {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-family: monospace;
+}
+
+.rfc-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #1e293b;
+}
+
+.expand-button {
+  align-self: flex-start;
+  padding: 4px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.expand-button:hover {
+  background: #f8fafc;
+}
+
+.card-summary {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+  color: #475569;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.author {
+  margin-top: 0.5rem;
+  color: #94a3b8;
+  font-style: italic;
+}

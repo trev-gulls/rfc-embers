@@ -1,0 +1,26 @@
+<article data-test-rfc-card class="card">
+  <header class="card-header">
+    <div class="card-meta">
+      <span data-test-rfc-number class="rfc-number">#{{@rfc.number}}</span>
+      <StatusBadge @status={{@rfc.status}} />
+    </div>
+    <h2 data-test-rfc-title class="rfc-title">{{@rfc.title}}</h2>
+    <button
+      data-test-expand-button
+      type="button"
+      class="expand-button"
+      {{on "click" this.toggleExpanded}}
+    >
+      {{if this.isExpanded "Collapse" "Expand"}}
+    </button>
+  </header>
+
+  {{#if this.isExpanded}}
+    <div data-test-rfc-summary class="card-summary">
+      <p>{{@rfc.summary}}</p>
+      {{#if @rfc.author}}
+        <p class="author">by {{@rfc.author.name}}</p>
+      {{/if}}
+    </div>
+  {{/if}}
+</article>
