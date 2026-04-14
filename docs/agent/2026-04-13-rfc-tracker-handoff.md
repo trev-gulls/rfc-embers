@@ -15,8 +15,8 @@ Not started. Scaffold not run. Directory is empty.
 
 1. Scaffold the app:
    ```bash
-   cd .. && npx ember-cli new rfc-tracker --typescript
-   cd rfc-tracker
+   cd .. && npx ember-cli new rfc-embers --typescript
+   cd rfc-embers
    npm install ember-scoped-css @ember-data/json-api
    ```
 2. Replace the generated `app/` structure with the components, models, routes, and gateway described below
@@ -140,7 +140,7 @@ export default class RfcsRoute extends Route {
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
-import type Rfc from 'rfc-tracker/models/rfc';
+import type Rfc from 'rfc-embers/models/rfc';
 
 interface Signature {
   Args: { rfc: Rfc };
@@ -217,7 +217,7 @@ Ember CLI scaffolds QUnit by default — nothing extra to install. Three test ty
 import { module, test } from 'qunit';
 import { setupApplicationTest } from 'ember-qunit';
 import { visit } from '@ember/test-helpers';
-import InMemoryRfcSource from 'rfc-tracker/sources/in-memory-rfc-source';
+import InMemoryRfcSource from 'rfc-embers/sources/in-memory-rfc-source';
 
 module('Acceptance | rfcs', function (hooks) {
   setupApplicationTest(hooks);

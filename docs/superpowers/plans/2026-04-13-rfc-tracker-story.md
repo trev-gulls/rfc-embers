@@ -58,7 +58,7 @@
 
 - [ ] **Step 1: Initialize Ember TypeScript project in the current directory**
 
-The `rfc-tracker` directory already exists with `.git` and `docs/`. Use `ember init` to scaffold into it:
+The `rfc-embers` directory already exists with `.git` and `docs/`. Use `ember init` to scaffold into it:
 
 ```bash
 npx ember-cli init --typescript
@@ -67,7 +67,7 @@ npx ember-cli init --typescript
 If `--typescript` is not supported by `init`, run from the parent directory instead, then copy all generated files over:
 
 ```bash
-cd .. && npx ember-cli new rfc-tracker --typescript --skip-git
+cd .. && npx ember-cli new rfc-embers --typescript --skip-git
 ```
 
 Expected: `app/`, `tests/`, `config/`, `ember-cli-build.js`, `package.json` and friends are created.
@@ -86,7 +86,7 @@ Replace the body of the `Router.map` call in `app/router.ts`:
 
 ```typescript
 import EmberRouter from '@ember/routing/router';
-import config from 'rfc-tracker/config/environment';
+import config from 'rfc-embers/config/environment';
 
 export default class Router extends EmberRouter {
   location = config.locationType;
@@ -302,8 +302,8 @@ Create `tests/unit/sources/in-memory-rfc-source-test.ts`:
 
 ```typescript
 import { module, test } from 'qunit';
-import InMemoryRfcSource from 'rfc-tracker/tests/app/sources/in-memory-rfc-source';
-import type { JsonApiResource } from 'rfc-tracker/gateways/rfc-gateway';
+import InMemoryRfcSource from 'rfc-embers/tests/app/sources/in-memory-rfc-source';
+import type { JsonApiResource } from 'rfc-embers/gateways/rfc-gateway';
 
 module('Unit | Source | InMemoryRfcSource', function () {
   test('fetchAll returns an array of 3 RFC resources', async function (assert) {
@@ -816,7 +816,7 @@ Replace `app/components/rfc-card/index.ts`:
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
-import type Rfc from 'rfc-tracker/models/rfc';
+import type Rfc from 'rfc-embers/models/rfc';
 
 interface Signature {
   Args: {
@@ -1179,7 +1179,7 @@ Replace `tests/acceptance/rfcs-test.ts`:
 import { module, test } from 'qunit';
 import { setupApplicationTest } from 'ember-qunit';
 import { visit, currentURL, click } from '@ember/test-helpers';
-import InMemoryRfcSource from 'rfc-tracker/tests/app/sources/in-memory-rfc-source';
+import InMemoryRfcSource from 'rfc-embers/tests/app/sources/in-memory-rfc-source';
 
 module('Acceptance | rfcs', function (hooks) {
   setupApplicationTest(hooks);
@@ -1249,8 +1249,8 @@ Replace `app/controllers/rfcs.ts`:
 import Controller from '@ember/controller';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
-import type Rfc from 'rfc-tracker/models/rfc';
-import type { RfcStatus } from 'rfc-tracker/models/rfc';
+import type Rfc from 'rfc-embers/models/rfc';
+import type { RfcStatus } from 'rfc-embers/models/rfc';
 
 export default class RfcsController extends Controller {
   declare model: Rfc[];
@@ -1329,7 +1329,7 @@ Create `tests/acceptance/rfc-test.ts`:
 import { module, test } from 'qunit';
 import { setupApplicationTest } from 'ember-qunit';
 import { visit, currentURL } from '@ember/test-helpers';
-import InMemoryRfcSource from 'rfc-tracker/tests/app/sources/in-memory-rfc-source';
+import InMemoryRfcSource from 'rfc-embers/tests/app/sources/in-memory-rfc-source';
 
 module('Acceptance | rfc detail', function (hooks) {
   setupApplicationTest(hooks);
@@ -1461,8 +1461,8 @@ Create `tests/unit/sources/github-rfc-source-test.ts`:
 
 ```typescript
 import { module, test } from 'qunit';
-import GitHubRfcSource from 'rfc-tracker/sources/github-rfc-source';
-import type { JsonApiResource } from 'rfc-tracker/gateways/rfc-gateway';
+import GitHubRfcSource from 'rfc-embers/sources/github-rfc-source';
+import type { JsonApiResource } from 'rfc-embers/gateways/rfc-gateway';
 
 const MOCK_ISSUES = [
   {
