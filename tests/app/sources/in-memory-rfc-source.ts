@@ -67,7 +67,7 @@ const FIXTURES: JsonApiDocument = {
 
 export default class InMemoryRfcSource implements RfcGateway {
   async fetchAll(): Promise<JsonApiDocument> {
-    return FIXTURES;
+    return structuredClone(FIXTURES);
   }
 
   async fetchOne(id: string): Promise<JsonApiDocument> {
@@ -76,6 +76,6 @@ export default class InMemoryRfcSource implements RfcGateway {
     if (!item) {
       throw new Error(`RFC with id ${id} not found`);
     }
-    return { data: item, included: FIXTURES.included };
+    return structuredClone({ data: item, included: FIXTURES.included });
   }
 }
