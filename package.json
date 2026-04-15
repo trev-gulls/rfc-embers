@@ -85,6 +85,9 @@
   "ember": {
     "edition": "octane"
   },
+  "overrides": {
+    "testem": "3.18.0"
+  },
   "dependencies": {
     "@ember-data/adapter": "^5.8.1",
     "@ember-data/json-api": "^5.8.1",
