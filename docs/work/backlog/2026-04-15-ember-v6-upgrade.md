@@ -2,7 +2,8 @@
 status: pending
 created: 2026-04-15
 updated: 2026-04-15
-blocked-by: []
+blocked-by:
+  - docs/git/2026-04-15-pr-2-review.md (O1-O17 outstanding issues)
 ---
 
 # Upgrade to Ember v6 (LTS) with Vite
@@ -35,3 +36,8 @@ test setup moves to a different runner.
   before starting.
 - The `testem` pin workaround (`overrides: { testem: "3.18.0" }`) should be revisited or
   removed once the new test setup is confirmed working.
+- The EmberData 5.8 deprecation warnings (legacy `findRecord`, `store.serializerFor`,
+  `StringTransform`/`NumberTransform` auto-install) will become errors in EmberData 6.0.
+  Resolve the outstanding items in `docs/git/2026-04-15-pr-2-review.md` before starting
+  this upgrade — particularly O4 (gateway params), O8 (adapter DI), and O10 (type split)
+  which directly affect the adapter/serializer layer that needs to be reworked for v6.
