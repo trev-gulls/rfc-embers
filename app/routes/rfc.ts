@@ -6,6 +6,6 @@ export default class RfcRoute extends Route {
   @service declare store: Store;
 
   async model(params: { rfc_id: string }) {
-    return this.store.findRecord('rfc', params.rfc_id);
+    return this.store.findRecord('rfc', params.rfc_id, { reload: true });
   }
 }
