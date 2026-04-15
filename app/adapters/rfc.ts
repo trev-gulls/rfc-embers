@@ -7,19 +7,17 @@ export default class RfcAdapter extends JSONAPIAdapter {
     return getOwner(this)!.lookup('source:rfc') as RfcGateway;
   }
 
-  override async query(
+  // @ts-expect-error: DT types don't align with our gateway return shape
+  async query(
     _store: unknown,
     _type: unknown,
     params: Record<string, unknown>,
-  ): Promise<unknown> {
+  ) {
     return this.gateway.fetchAll(params);
   }
 
-  override async findRecord(
-    _store: unknown,
-    _type: unknown,
-    id: string,
-  ): Promise<unknown> {
+  // @ts-expect-error: DT types don't align with our gateway return shape
+  async findRecord(_store: unknown, _type: unknown, id: string) {
     return this.gateway.fetchOne(id);
   }
 }

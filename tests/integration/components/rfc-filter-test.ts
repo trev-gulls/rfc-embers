@@ -7,10 +7,10 @@ module('Integration | Component | rfc-filter', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {
-    this.activeStatus = null;
-    this.onFilterChange = (status: string | null) => {
-      this.activeStatus = status;
-    };
+    this.set('activeStatus', null);
+    this.set('onFilterChange', (status: string | null) => {
+      this.set('activeStatus', status);
+    });
   });
 
   test('it renders all status filter buttons', async function (assert) {
@@ -34,10 +34,9 @@ module('Integration | Component | rfc-filter', function (hooks) {
   });
 
   test('clicking a status button calls onFilterChange with that status', async function (assert) {
-    assert.expect(1);
-    this.onFilterChange = (status: string | null) => {
+    this.set('onFilterChange', (status: string | null) => {
       assert.strictEqual(status, 'proposed');
-    };
+    });
     await render(
       hbs`<RfcFilter @activeStatus={{null}} @onFilterChange={{this.onFilterChange}} />`,
     );
@@ -45,10 +44,9 @@ module('Integration | Component | rfc-filter', function (hooks) {
   });
 
   test('clicking the active status button clears the filter', async function (assert) {
-    assert.expect(1);
-    this.onFilterChange = (status: string | null) => {
+    this.set('onFilterChange', (status: string | null) => {
       assert.strictEqual(status, null);
-    };
+    });
     await render(
       hbs`<RfcFilter @activeStatus="proposed" @onFilterChange={{this.onFilterChange}} />`,
     );

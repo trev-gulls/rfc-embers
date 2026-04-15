@@ -7,14 +7,14 @@ module('Integration | Component | rfc-card', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {
-    this.rfc = {
+    this.set('rfc', {
       id: '724',
       title: 'Native TypeScript Types',
       number: 724,
       status: 'released',
       summary: 'Ship native TypeScript types with Ember packages.',
       author: { name: 'Krystan HuffMenne', githubHandle: 'gitKrystan' },
-    };
+    });
   });
 
   test('it renders the RFC title and number', async function (assert) {

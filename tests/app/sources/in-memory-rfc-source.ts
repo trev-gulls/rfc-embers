@@ -66,7 +66,7 @@ const FIXTURES: JsonApiDocument = {
 };
 
 export default class InMemoryRfcSource implements RfcGateway {
-  async fetchAll(_params?: Record<string, unknown>): Promise<JsonApiDocument> {
+  async fetchAll(): Promise<JsonApiDocument> {
     return FIXTURES;
   }
 

@@ -12,18 +12,23 @@ interface GitHubIssue {
 }
 
 const GITHUB_API_URL =
-  'https://api.github.com/repos/emberjs/rfcs/issues?state=all&per_page=100&labels=RFC';
+  'https://api.github.com/repos/emberjs/rfcs/issues?state=all&per_page=100';
 
 function mapStatus(issue: GitHubIssue): RfcStatus {
   const labelNames = issue.labels.map((l) => l.name.toLowerCase());
-  if (labelNames.some((l) => l.includes('released'))) return 'released';
-  if (labelNames.some((l) => l.includes('accepted'))) return 'accepted';
-  if (issue.state === 'closed') return 'closed';
+  if (labelNames.some((l) => l.includes('s-released'))) return 'released';
+  if (
+    labelNames.some(
+      (l) => l.includes('s-recommended') || l.includes('s-ready for release'),
+    )
+  )
+    return 'accepted';
+  if (labelNames.some((l) => l.includes('s-discontinued'))) return 'closed';
   return 'proposed';
 }
 
 export default class GitHubRfcSource implements RfcGateway {
-  async fetchAll(_params?: Record<string, unknown>): Promise<JsonApiDocument> {
+  async fetchAll(): Promise<JsonApiDocument> {
     const response = await fetch(GITHUB_API_URL);
     if (!response.ok) {
       throw new Error(`GitHub API error: ${response.status}`);
@@ -34,7 +39,7 @@ export default class GitHubRfcSource implements RfcGateway {
 
   async fetchOne(id: string): Promise<JsonApiDocument> {
     const response = await fetch(
-      `https://api.github.com/repos/emberjs/rfcs/issues/${id}`
+      `https://api.github.com/repos/emberjs/rfcs/issues/${id}`,
     );
     if (!response.ok) {
       throw new Error(`GitHub API error: ${response.status}`);

@@ -1,4 +1,4 @@
-import Component from '@glimmer/component';
+import templateOnly from '@ember/component/template-only';
 import type { RfcStatus } from '../../models/rfc';
 
 interface Signature {
@@ -7,4 +7,4 @@ interface Signature {
   };
 }
 
-export default class StatusBadgeComponent extends Component<Signature> {}
+export default templateOnly<Signature>();

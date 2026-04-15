@@ -7,7 +7,9 @@ module('Acceptance | rfcs', function (hooks) {
   setupApplicationTest(hooks);
 
   hooks.beforeEach(function () {
-    this.owner.register('source:rfc', InMemoryRfcSource);
+    this.owner.register('source:rfc', new InMemoryRfcSource(), {
+      instantiate: false,
+    });
   });
 
   test('visiting /rfcs shows the list page', async function (assert) {

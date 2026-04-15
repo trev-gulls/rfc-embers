@@ -13,7 +13,9 @@ export default class App extends Application {
 App.initializer({
   name: 'rfc-source',
   initialize(application) {
-    application.register('source:rfc', GitHubRfcSource, { singleton: true });
+    application.register('source:rfc', new GitHubRfcSource(), {
+      instantiate: false,
+    });
   },
 });
 
