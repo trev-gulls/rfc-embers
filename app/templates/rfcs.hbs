@@ -1,0 +1,16 @@
+<div class="rfcs-page">
+  <h1 class="page-title">Ember RFCs</h1>
+
+  <RfcFilter
+    @activeStatus={{this.activeStatus}}
+    @onFilterChange={{this.setActiveStatus}}
+  />
+
+  <div class="rfc-list">
+    {{#each this.filteredRfcs as |rfc|}}
+      <RfcCard @rfc={{rfc}} />
+    {{else}}
+      <p class="no-results">No RFCs match the current filter.</p>
+    {{/each}}
+  </div>
+</div>

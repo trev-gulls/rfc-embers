@@ -362,8 +362,8 @@ Expected: FAIL — module not found.
 Create `tests/app/sources/in-memory-rfc-source.ts`:
 
 ```typescript
-import type RfcGateway from '../gateways/rfc-gateway';
-import type { JsonApiDocument, JsonApiResource } from '../gateways/rfc-gateway';
+import type RfcGateway from 'rfc-embers/gateways/rfc-gateway';
+import type { JsonApiDocument, JsonApiResource } from 'rfc-embers/gateways/rfc-gateway';
 
 const FIXTURES: JsonApiDocument = {
   data: [

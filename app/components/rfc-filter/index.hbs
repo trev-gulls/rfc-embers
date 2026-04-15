@@ -1,0 +1,21 @@
+<div class="filter-bar" role="group" aria-label="Filter by status">
+  <button
+    data-test-filter-button="all"
+    type="button"
+    class="filter-button {{if (eq @activeStatus null) 'filter-button--active'}}"
+    {{on "click" (fn this.selectStatus null)}}
+  >
+    All
+  </button>
+
+  {{#each this.statuses as |status|}}
+    <button
+      data-test-filter-button={{status}}
+      type="button"
+      class="filter-button {{if (eq @activeStatus status) 'filter-button--active'}}"
+      {{on "click" (fn this.selectStatus status)}}
+    >
+      {{status}}
+    </button>
+  {{/each}}
+</div>

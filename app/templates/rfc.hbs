@@ -1,0 +1,20 @@
+<div class="rfc-detail">
+  <div class="rfc-detail-header">
+    <span data-test-rfc-detail-number class="rfc-number">#{{this.model.number}}</span>
+    <StatusBadge @status={{this.model.status}} />
+  </div>
+
+  <h1 data-test-rfc-detail-title class="rfc-detail-title">{{this.model.title}}</h1>
+
+  {{#if this.model.author}}
+    <p data-test-rfc-detail-author class="rfc-detail-author">
+      by {{this.model.author.name}}
+    </p>
+  {{/if}}
+
+  <div data-test-rfc-detail-summary class="rfc-detail-summary">
+    <p>{{this.model.summary}}</p>
+  </div>
+
+  <LinkTo @route="rfcs" class="back-link">← Back to all RFCs</LinkTo>
+</div>
