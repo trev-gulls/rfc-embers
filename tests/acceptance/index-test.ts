@@ -1,5 +1,5 @@
 import { module, test } from 'qunit';
-import { setupApplicationTest } from 'ember-qunit';
+import { setupApplicationTest } from 'rfc-embers/tests/helpers';
 import { visit, currentURL } from '@ember/test-helpers';
 import InMemoryRfcSource from 'rfc-embers/tests/app/sources/in-memory-rfc-source';
 

@@ -6,7 +6,6 @@ import GitHubRfcSource from './sources/github-rfc-source';
 
 export default class App extends Application {
   modulePrefix = config.modulePrefix;
-  podModulePrefix = config.podModulePrefix;
   Resolver = Resolver;
 }
 
