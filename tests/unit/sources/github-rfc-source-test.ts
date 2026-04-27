@@ -83,7 +83,12 @@ module('Unit | Source | GitHubRfcSource', function (hooks) {
     assert.strictEqual(
       doc.included?.[0]?.id,
       'unknown',
-      'null user gets fallback id "unknown"',
+      'null user gets fallback id "unknown" in included',
+    );
+    assert.strictEqual(
+      doc.data[0]?.relationships?.['author']?.data?.id,
+      'unknown',
+      'null user gets fallback id "unknown" in relationship',
     );
   });
 
@@ -99,7 +104,12 @@ module('Unit | Source | GitHubRfcSource', function (hooks) {
     assert.strictEqual(
       doc.included?.[0]?.id,
       'unknown',
-      'null user gets fallback id "unknown"',
+      'null user gets fallback id "unknown" in included',
+    );
+    assert.strictEqual(
+      doc.data.relationships?.['author']?.data?.id,
+      'unknown',
+      'null user gets fallback id "unknown" in relationship',
     );
   });
 });

@@ -57,6 +57,7 @@ export default class GitHubRfcSource implements RfcGateway {
   }
 
   #issueToResource(issue: GitHubIssue): JsonApiResource {
+    const login = issue.user?.login ?? 'unknown';
     return {
       id: String(issue.number),
       type: 'rfc',
@@ -67,7 +68,7 @@ export default class GitHubRfcSource implements RfcGateway {
         summary: issue.body ?? '',
       },
       relationships: {
-        author: { data: { id: issue.user?.login ?? 'unknown', type: 'author' } },
+        author: { data: { id: login, type: 'author' } },
       },
     };
   }
