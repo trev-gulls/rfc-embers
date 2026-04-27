@@ -5,12 +5,17 @@ export interface JsonApiResource {
   relationships?: Record<string, { data: { id: string; type: string } | null }>;
 }
 
-export interface JsonApiDocument {
-  data: JsonApiResource | JsonApiResource[];
+export interface JsonApiSingularDocument {
+  data: JsonApiResource;
+  included?: JsonApiResource[];
+}
+
+export interface JsonApiCollectionDocument {
+  data: JsonApiResource[];
   included?: JsonApiResource[];
 }
 
 export default interface RfcGateway {
-  fetchAll(params?: Record<string, unknown>): Promise<JsonApiDocument>;
-  fetchOne(id: string): Promise<JsonApiDocument>;
+  fetchAll(): Promise<JsonApiCollectionDocument>;
+  fetchOne(id: string): Promise<JsonApiSingularDocument>;
 }

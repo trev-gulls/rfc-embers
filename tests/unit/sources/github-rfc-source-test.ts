@@ -1,6 +1,5 @@
 import { module, test } from 'qunit';
 import GitHubRfcSource from 'rfc-embers/sources/github-rfc-source';
-import type { JsonApiResource } from 'rfc-embers/gateways/rfc-gateway';
 
 const MOCK_ISSUES = [
   {
@@ -45,26 +44,15 @@ module('Unit | Source | GitHubRfcSource', function (hooks) {
   test('fetchAll returns a JSON:API document with data array', async function (assert) {
     const source = new GitHubRfcSource();
     const doc = await source.fetchAll();
-    assert.ok(Array.isArray(doc.data), 'data is an array');
-    assert.strictEqual((doc.data as unknown[]).length, 3);
+    assert.strictEqual(doc.data.length, 3);
   });
 
   test('fetchAll maps GitHub labels to RFC status correctly', async function (assert) {
     const source = new GitHubRfcSource();
     const doc = await source.fetchAll();
-    const items = doc.data as JsonApiResource[];
-    assert.strictEqual(
-      items.find((i) => i.id === '724')?.attributes['status'],
-      'released',
-    );
-    assert.strictEqual(
-      items.find((i) => i.id === '883')?.attributes['status'],
-      'accepted',
-    );
-    assert.strictEqual(
-      items.find((i) => i.id === '900')?.attributes['status'],
-      'proposed',
-    );
+    assert.strictEqual(doc.data.find((i) => i.id === '724')?.attributes['status'], 'released');
+    assert.strictEqual(doc.data.find((i) => i.id === '883')?.attributes['status'], 'accepted');
+    assert.strictEqual(doc.data.find((i) => i.id === '900')?.attributes['status'], 'proposed');
   });
 
   test('fetchAll deduplicates and includes author resources', async function (assert) {

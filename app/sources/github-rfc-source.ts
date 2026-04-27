@@ -1,5 +1,9 @@
 import type RfcGateway from '../gateways/rfc-gateway';
-import type { JsonApiDocument, JsonApiResource } from '../gateways/rfc-gateway';
+import type {
+  JsonApiCollectionDocument,
+  JsonApiSingularDocument,
+  JsonApiResource,
+} from '../gateways/rfc-gateway';
 import type { RfcStatus } from '../models/rfc';
 
 interface GitHubIssue {
@@ -28,7 +32,7 @@ function mapStatus(issue: GitHubIssue): RfcStatus {
 }
 
 export default class GitHubRfcSource implements RfcGateway {
-  async fetchAll(): Promise<JsonApiDocument> {
+  async fetchAll(): Promise<JsonApiCollectionDocument> {
     const response = await fetch(GITHUB_API_URL);
     if (!response.ok) {
       throw new Error(`GitHub API error: ${response.status}`);
@@ -37,7 +41,7 @@ export default class GitHubRfcSource implements RfcGateway {
     return this.#toDocument(issues);
   }
 
-  async fetchOne(id: string): Promise<JsonApiDocument> {
+  async fetchOne(id: string): Promise<JsonApiSingularDocument> {
     const response = await fetch(
       `https://api.github.com/repos/emberjs/rfcs/issues/${id}`,
     );
@@ -75,7 +79,7 @@ export default class GitHubRfcSource implements RfcGateway {
     };
   }
 
-  #toDocument(issues: GitHubIssue[]): JsonApiDocument {
+  #toDocument(issues: GitHubIssue[]): JsonApiCollectionDocument {
     const data = issues.map((i) => this.#issueToResource(i));
     const seen = new Set<string>();
     const included: JsonApiResource[] = [];
