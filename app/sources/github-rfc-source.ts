@@ -11,7 +11,7 @@ interface GitHubIssue {
   title: string;
   body: string | null;
   state: 'open' | 'closed';
-  user: { login: string };
+  user: { login: string } | null; // null for deleted GitHub accounts
   labels: Array<{ name: string }>;
 }
 
@@ -49,9 +49,10 @@ export default class GitHubRfcSource implements RfcGateway {
       throw new Error(`GitHub API error: ${response.status}`);
     }
     const issue: GitHubIssue = await response.json();
+    const login = issue.user?.login ?? 'unknown';
     return {
       data: this.#issueToResource(issue),
-      included: [this.#authorResource(issue.user.login)],
+      included: [this.#authorResource(login)],
     };
   }
 
@@ -66,7 +67,7 @@ export default class GitHubRfcSource implements RfcGateway {
         summary: issue.body ?? '',
       },
       relationships: {
-        author: { data: { id: issue.user.login, type: 'author' } },
+        author: { data: { id: issue.user?.login ?? 'unknown', type: 'author' } },
       },
     };
   }
@@ -84,9 +85,10 @@ export default class GitHubRfcSource implements RfcGateway {
     const seen = new Set<string>();
     const included: JsonApiResource[] = [];
     for (const issue of issues) {
-      if (!seen.has(issue.user.login)) {
-        seen.add(issue.user.login);
-        included.push(this.#authorResource(issue.user.login));
+      const login = issue.user?.login ?? 'unknown';
+      if (!seen.has(login)) {
+        seen.add(login);
+        included.push(this.#authorResource(login));
       }
     }
     return { data, included };

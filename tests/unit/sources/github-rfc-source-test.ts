@@ -70,4 +70,36 @@ module('Unit | Source | GitHubRfcSource', function (hooks) {
     const source = new GitHubRfcSource();
     await assert.rejects(source.fetchAll(), /403/);
   });
+
+  test('fetchAll handles issues with null user (deleted accounts)', async function (assert) {
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        json: async () => [{ ...MOCK_ISSUES[0], user: null }],
+      }) as Response;
+    const source = new GitHubRfcSource();
+    const doc = await source.fetchAll();
+    assert.strictEqual(doc.data.length, 1, 'processes the issue');
+    assert.strictEqual(
+      doc.included?.[0]?.id,
+      'unknown',
+      'null user gets fallback id "unknown"',
+    );
+  });
+
+  test('fetchOne handles null user (deleted account)', async function (assert) {
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        json: async () => ({ ...MOCK_ISSUES[0], user: null }),
+      }) as Response;
+    const source = new GitHubRfcSource();
+    const doc = await source.fetchOne('724');
+    assert.strictEqual(doc.data.id, '724', 'still returns the RFC');
+    assert.strictEqual(
+      doc.included?.[0]?.id,
+      'unknown',
+      'null user gets fallback id "unknown"',
+    );
+  });
 });
