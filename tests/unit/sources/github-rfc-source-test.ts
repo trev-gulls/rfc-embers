@@ -112,4 +112,95 @@ module('Unit | Source | GitHubRfcSource', function (hooks) {
       'null user gets fallback id "unknown" in relationship',
     );
   });
+
+  test('fetchAll rejects with a descriptive error when response is not valid JSON', async function (assert) {
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        url: 'https://api.github.com/repos/emberjs/rfcs/issues',
+        json: async () => {
+          throw new SyntaxError('Unexpected token < in JSON at position 0');
+        },
+      }) as unknown as Response;
+    const source = new GitHubRfcSource();
+    await assert.rejects(
+      source.fetchAll(),
+      /failed to parse response/i,
+      'surfaces a descriptive parse error',
+    );
+  });
+
+  test('fetchOne rejects with a descriptive error when response is not valid JSON', async function (assert) {
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        url: 'https://api.github.com/repos/emberjs/rfcs/issues/724',
+        json: async () => {
+          throw new SyntaxError('Unexpected end of JSON input');
+        },
+      }) as unknown as Response;
+    const source = new GitHubRfcSource();
+    await assert.rejects(
+      source.fetchOne('724'),
+      /failed to parse response/i,
+      'surfaces a descriptive parse error',
+    );
+  });
+
+  test('fetchAll rejects when the request is aborted', async function (assert) {
+    const origSetTimeout = globalThis.setTimeout;
+    const source = new GitHubRfcSource();
+
+    globalThis.fetch = async (_url: RequestInfo | URL, options?: RequestInit) =>
+      new Promise<Response>((_resolve, reject) => {
+        options?.signal?.addEventListener('abort', () => {
+          reject(new DOMException('The operation was aborted.', 'AbortError'));
+        });
+      });
+
+    // Replace setTimeout so the abort fires on the next tick rather than after 10 s
+    globalThis.setTimeout = ((fn: () => void, _delay: number) =>
+      origSetTimeout(fn, 0)) as typeof setTimeout;
+
+    try {
+      await assert.rejects(source.fetchAll(), /aborted/i);
+    } finally {
+      globalThis.setTimeout = origSetTimeout;
+    }
+  });
+
+  test('fetchAll warns when exactly 100 issues are returned', async function (assert) {
+    const hundredIssues = Array.from({ length: 100 }, (_, i) => ({
+      number: i + 1,
+      title: `RFC ${i + 1}`,
+      body: null,
+      state: 'open' as const,
+      user: { login: `author${i}` },
+      labels: [] as Array<{ name: string }>,
+    }));
+
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        url: 'https://api.github.com/repos/emberjs/rfcs/issues',
+        json: async () => hundredIssues,
+      }) as unknown as Response;
+
+    let warnMessage: string | undefined;
+    const originalWarn = console.warn;
+    console.warn = (msg: string) => {
+      warnMessage = msg;
+    };
+
+    try {
+      const source = new GitHubRfcSource();
+      await source.fetchAll();
+      assert.ok(
+        warnMessage?.includes('truncated'),
+        'warns about potential truncation when exactly 100 issues are returned',
+      );
+    } finally {
+      console.warn = originalWarn;
+    }
+  });
 });
