@@ -43,6 +43,7 @@ module('Acceptance | rfc detail', function (hooks) {
   });
 
   test('shows error substate when fetching a single RFC fails', async function (assert) {
+    this.owner.unregister('source:rfc');
     this.owner.register(
       'source:rfc',
       {

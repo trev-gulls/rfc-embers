@@ -36,6 +36,7 @@ module('Acceptance | rfcs', function (hooks) {
   });
 
   test('shows error substate when the source throws', async function (assert) {
+    this.owner.unregister('source:rfc');
     this.owner.register(
       'source:rfc',
       {
