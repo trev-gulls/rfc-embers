@@ -41,4 +41,22 @@ module('Acceptance | rfc detail', function (hooks) {
     await visit('/rfcs/724');
     assert.dom('[data-test-status-badge]').hasText('released');
   });
+
+  test('shows error substate when fetching a single RFC fails', async function (assert) {
+    this.owner.register(
+      'source:rfc',
+      {
+        fetchAll: async () => ({ data: [], included: [] }),
+        fetchOne: async () => {
+          throw new Error('not found');
+        },
+      },
+      { instantiate: false },
+    );
+    await visit('/rfcs/724');
+    assert.dom('[data-test-rfc-error]').exists('rfc error substate is rendered');
+    assert
+      .dom('[data-test-rfc-error]')
+      .containsText('not found', 'error message is surfaced');
+  });
 });

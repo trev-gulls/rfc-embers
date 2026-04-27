@@ -34,4 +34,24 @@ module('Acceptance | rfcs', function (hooks) {
     // Only RFC #724 has status "released" in fixtures
     assert.dom('[data-test-rfc-card]').exists({ count: 1 });
   });
+
+  test('shows error substate when the source throws', async function (assert) {
+    this.owner.register(
+      'source:rfc',
+      {
+        fetchAll: async () => {
+          throw new Error('network failure');
+        },
+        fetchOne: async () => {
+          throw new Error('network failure');
+        },
+      },
+      { instantiate: false },
+    );
+    await visit('/rfcs');
+    assert.dom('[data-test-rfcs-error]').exists('rfcs error substate is rendered');
+    assert
+      .dom('[data-test-rfcs-error]')
+      .containsText('network failure', 'error message is surfaced');
+  });
 });
