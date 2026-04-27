@@ -1,9 +1,8 @@
 ---
 status: pending
 created: 2026-04-15
-updated: 2026-04-15
-blocked-by:
-  - docs/git/2026-04-15-pr-2-review.md (O1-O17 outstanding issues)
+updated: 2026-04-27
+blocked-by: []
 ---
 
 # Upgrade to Ember v6 (LTS) with Vite
