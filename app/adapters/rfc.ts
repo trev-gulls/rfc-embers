@@ -4,19 +4,32 @@ import type RfcGateway from '../gateways/rfc-gateway';
 
 export default class RfcAdapter extends JSONAPIAdapter {
   private get gateway(): RfcGateway {
-    return getOwner(this)!.lookup('source:rfc') as RfcGateway;
+    const source = getOwner(this)?.lookup('source:rfc');
+    if (
+      !source ||
+      typeof (source as RfcGateway).fetchAll !== 'function' ||
+      typeof (source as RfcGateway).fetchOne !== 'function'
+    ) {
+      throw new Error(
+        "RfcAdapter: 'source:rfc' is not registered or does not implement RfcGateway. " +
+          "Call owner.register('source:rfc', YourSource, { instantiate: false }) in your route or test setup.",
+      );
+    }
+    return source as RfcGateway;
   }
 
-  // @ts-expect-error: DT types don't align with our gateway return shape
+  // @ts-expect-error: EmberData's adapter chain returns RSVP.Promise which carries a 'new'
+  // constructor signature; native async returns platform Promise which lacks it. Runtime is
+  // correct — remove this suppression if EmberData drops RSVP from its type definitions.
   async query(
     _store: unknown,
     _type: unknown,
-    params: Record<string, unknown>,
+    _params: Record<string, unknown>,
   ) {
-    return this.gateway.fetchAll(params);
+    return this.gateway.fetchAll();
   }
 
-  // @ts-expect-error: DT types don't align with our gateway return shape
+  // @ts-expect-error: same RSVP.Promise vs native Promise incompatibility as query above.
   async findRecord(_store: unknown, _type: unknown, id: string) {
     return this.gateway.fetchOne(id);
   }

@@ -1,6 +1,5 @@
 import { module, test } from 'qunit';
 import GitHubRfcSource from 'rfc-embers/sources/github-rfc-source';
-import type { JsonApiResource } from 'rfc-embers/gateways/rfc-gateway';
 
 const MOCK_ISSUES = [
   {
@@ -45,24 +44,22 @@ module('Unit | Source | GitHubRfcSource', function (hooks) {
   test('fetchAll returns a JSON:API document with data array', async function (assert) {
     const source = new GitHubRfcSource();
     const doc = await source.fetchAll();
-    assert.ok(Array.isArray(doc.data), 'data is an array');
-    assert.strictEqual((doc.data as unknown[]).length, 3);
+    assert.strictEqual(doc.data.length, 3);
   });
 
   test('fetchAll maps GitHub labels to RFC status correctly', async function (assert) {
     const source = new GitHubRfcSource();
     const doc = await source.fetchAll();
-    const items = doc.data as JsonApiResource[];
     assert.strictEqual(
-      items.find((i) => i.id === '724')?.attributes['status'],
+      doc.data.find((i) => i.id === '724')?.attributes['status'],
       'released',
     );
     assert.strictEqual(
-      items.find((i) => i.id === '883')?.attributes['status'],
+      doc.data.find((i) => i.id === '883')?.attributes['status'],
       'accepted',
     );
     assert.strictEqual(
-      items.find((i) => i.id === '900')?.attributes['status'],
+      doc.data.find((i) => i.id === '900')?.attributes['status'],
       'proposed',
     );
   });
@@ -81,5 +78,173 @@ module('Unit | Source | GitHubRfcSource', function (hooks) {
     globalThis.fetch = async () => ({ ok: false, status: 403 }) as Response;
     const source = new GitHubRfcSource();
     await assert.rejects(source.fetchAll(), /403/);
+  });
+
+  test('fetchAll handles issues with null user (deleted accounts)', async function (assert) {
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        json: async () => [{ ...MOCK_ISSUES[0], user: null }],
+      }) as Response;
+    const source = new GitHubRfcSource();
+    const doc = await source.fetchAll();
+    assert.strictEqual(doc.data.length, 1, 'processes the issue');
+    assert.strictEqual(
+      doc.included?.[0]?.id,
+      'unknown',
+      'null user gets fallback id "unknown" in included',
+    );
+    assert.strictEqual(
+      doc.data[0]?.relationships?.['author']?.data?.id,
+      'unknown',
+      'null user gets fallback id "unknown" in relationship',
+    );
+  });
+
+  test('fetchOne handles null user (deleted account)', async function (assert) {
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        json: async () => ({ ...MOCK_ISSUES[0], user: null }),
+      }) as Response;
+    const source = new GitHubRfcSource();
+    const doc = await source.fetchOne('724');
+    assert.strictEqual(doc.data.id, '724', 'still returns the RFC');
+    assert.strictEqual(
+      doc.included?.[0]?.id,
+      'unknown',
+      'null user gets fallback id "unknown" in included',
+    );
+    assert.strictEqual(
+      doc.data.relationships?.['author']?.data?.id,
+      'unknown',
+      'null user gets fallback id "unknown" in relationship',
+    );
+  });
+
+  test('fetchAll rejects with a descriptive error when response is not valid JSON', async function (assert) {
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        url: 'https://api.github.com/repos/emberjs/rfcs/issues',
+        json: async () => {
+          throw new SyntaxError('Unexpected token < in JSON at position 0');
+        },
+      }) as unknown as Response;
+    const source = new GitHubRfcSource();
+    await assert.rejects(
+      source.fetchAll(),
+      /failed to parse response/i,
+      'surfaces a descriptive parse error',
+    );
+  });
+
+  test('fetchOne rejects with a descriptive error when response is not valid JSON', async function (assert) {
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        url: 'https://api.github.com/repos/emberjs/rfcs/issues/724',
+        json: async () => {
+          throw new SyntaxError('Unexpected end of JSON input');
+        },
+      }) as unknown as Response;
+    const source = new GitHubRfcSource();
+    await assert.rejects(
+      source.fetchOne('724'),
+      /failed to parse response/i,
+      'surfaces a descriptive parse error',
+    );
+  });
+
+  test('fetchAll rejects when the request is aborted', async function (assert) {
+    const origSetTimeout = globalThis.setTimeout;
+
+    globalThis.fetch = async (_url: RequestInfo | URL, options?: RequestInit) =>
+      new Promise<Response>((_resolve, reject) => {
+        options?.signal?.addEventListener('abort', () => {
+          reject(new DOMException('The operation was aborted.', 'AbortError'));
+        });
+      });
+
+    // Replace setTimeout so the abort fires on the next tick rather than after 10 s
+    globalThis.setTimeout = ((fn: () => void, _: number) =>
+      origSetTimeout(fn, 0)) as typeof setTimeout;
+
+    const source = new GitHubRfcSource();
+    try {
+      await assert.rejects(source.fetchAll(), /aborted/i);
+    } finally {
+      globalThis.setTimeout = origSetTimeout;
+    }
+  });
+
+  test('fetchOne returns a single JSON:API document for the given id', async function (assert) {
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        url: 'https://api.github.com/repos/emberjs/rfcs/issues/724',
+        json: async () => MOCK_ISSUES[0],
+      }) as unknown as Response;
+    const source = new GitHubRfcSource();
+    const doc = await source.fetchOne('724');
+    assert.strictEqual(doc.data.id, '724');
+    assert.strictEqual(doc.data.type, 'rfc');
+    assert.strictEqual(doc.data.attributes['status'], 'released');
+  });
+
+  test('fetchOne includes the author resource for the issue', async function (assert) {
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        url: 'https://api.github.com/repos/emberjs/rfcs/issues/724',
+        json: async () => MOCK_ISSUES[0],
+      }) as unknown as Response;
+    const source = new GitHubRfcSource();
+    const doc = await source.fetchOne('724');
+    assert.ok(doc.included, 'has included');
+    assert.strictEqual(doc.included?.length, 1, 'exactly one author resource');
+    assert.strictEqual(doc.included?.[0]?.id, 'gitKrystan');
+    assert.strictEqual(doc.included?.[0]?.type, 'author');
+  });
+
+  test('fetchOne throws on non-ok response', async function (assert) {
+    globalThis.fetch = async () => ({ ok: false, status: 404 }) as Response;
+    const source = new GitHubRfcSource();
+    await assert.rejects(source.fetchOne('999'), /404/);
+  });
+
+  test('fetchAll warns when exactly 100 issues are returned', async function (assert) {
+    const hundredIssues = Array.from({ length: 100 }, (_, i) => ({
+      number: i + 1,
+      title: `RFC ${i + 1}`,
+      body: null,
+      state: 'open' as const,
+      user: { login: `author${i}` },
+      labels: [] as Array<{ name: string }>,
+    }));
+
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        url: 'https://api.github.com/repos/emberjs/rfcs/issues',
+        json: async () => hundredIssues,
+      }) as unknown as Response;
+
+    let warnMessage: string | undefined;
+    const originalWarn = console.warn;
+    console.warn = (...args: unknown[]) => {
+      warnMessage = String(args[0]);
+    };
+
+    try {
+      const source = new GitHubRfcSource();
+      await source.fetchAll();
+      assert.ok(
+        warnMessage?.includes('truncated'),
+        'warns about potential truncation when exactly 100 issues are returned',
+      );
+    } finally {
+      console.warn = originalWarn;
+    }
   });
 });

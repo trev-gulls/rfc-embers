@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+set -e
+
+staged_ts=$(git diff --cached --name-only --diff-filter=ACMR -- '*.ts' '*.js')
+staged_hbs=$(git diff --cached --name-only --diff-filter=ACMR -- '*.hbs')
+staged_css=$(git diff --cached --name-only --diff-filter=ACMR -- '*.css')
+
+if [ -n "$staged_ts" ]; then
+  echo "$staged_ts" | xargs npx eslint --fix
+  echo "$staged_ts" | xargs git add
+fi
+
+if [ -n "$staged_hbs" ]; then
+  echo "$staged_hbs" | xargs npx ember-template-lint --fix
+  echo "$staged_hbs" | xargs git add
+fi
+
+if [ -n "$staged_css" ]; then
+  echo "$staged_css" | xargs npx stylelint --fix
+  echo "$staged_css" | xargs git add
+fi

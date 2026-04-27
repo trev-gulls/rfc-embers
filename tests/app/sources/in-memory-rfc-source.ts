@@ -1,10 +1,10 @@
 import type RfcGateway from 'rfc-embers/gateways/rfc-gateway';
 import type {
-  JsonApiDocument,
-  JsonApiResource,
+  JsonApiCollectionDocument,
+  JsonApiSingularDocument,
 } from 'rfc-embers/gateways/rfc-gateway';
 
-const FIXTURES: JsonApiDocument = {
+const FIXTURES: JsonApiCollectionDocument = {
   data: [
     {
       id: '724',
@@ -66,13 +66,12 @@ const FIXTURES: JsonApiDocument = {
 };
 
 export default class InMemoryRfcSource implements RfcGateway {
-  async fetchAll(): Promise<JsonApiDocument> {
+  async fetchAll(): Promise<JsonApiCollectionDocument> {
     return structuredClone(FIXTURES);
   }
 
-  async fetchOne(id: string): Promise<JsonApiDocument> {
-    const items = FIXTURES.data as JsonApiResource[];
-    const item = items.find((r) => r.id === id);
+  async fetchOne(id: string): Promise<JsonApiSingularDocument> {
+    const item = FIXTURES.data.find((r) => r.id === id);
     if (!item) {
       throw new Error(`RFC with id ${id} not found`);
     }

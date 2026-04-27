@@ -1,9 +1,11 @@
 ---
 title: RFC Tracker Implementation
 type: feature
-status: engaged
+status: merged
 branch: feat/rfc-tracker-implementation
 started: 2026-04-14
+finished: 2026-04-15
+pr: trev-gulls/rfc-embers#2
 plan: docs/superpowers/plans/2026-04-13-rfc-tracker-story.md
 ---
 
