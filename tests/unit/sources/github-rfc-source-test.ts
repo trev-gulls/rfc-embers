@@ -149,7 +149,6 @@ module('Unit | Source | GitHubRfcSource', function (hooks) {
 
   test('fetchAll rejects when the request is aborted', async function (assert) {
     const origSetTimeout = globalThis.setTimeout;
-    const source = new GitHubRfcSource();
 
     globalThis.fetch = async (_url: RequestInfo | URL, options?: RequestInit) =>
       new Promise<Response>((_resolve, reject) => {
@@ -162,6 +161,7 @@ module('Unit | Source | GitHubRfcSource', function (hooks) {
     globalThis.setTimeout = ((fn: () => void, _delay: number) =>
       origSetTimeout(fn, 0)) as typeof setTimeout;
 
+    const source = new GitHubRfcSource();
     try {
       await assert.rejects(source.fetchAll(), /aborted/i);
     } finally {
@@ -188,8 +188,8 @@ module('Unit | Source | GitHubRfcSource', function (hooks) {
 
     let warnMessage: string | undefined;
     const originalWarn = console.warn;
-    console.warn = (msg: string) => {
-      warnMessage = msg;
+    console.warn = (...args: unknown[]) => {
+      warnMessage = String(args[0]);
     };
 
     try {
