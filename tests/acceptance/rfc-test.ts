@@ -42,6 +42,16 @@ module('Acceptance | rfc detail', function (hooks) {
     assert.dom('[data-test-status-badge]').hasText('released');
   });
 
+  test('shows error substate for a non-numeric rfc_id', async function (assert) {
+    await visit('/rfcs/banana');
+    assert
+      .dom('[data-test-rfc-error]')
+      .exists('error substate is shown for an invalid id');
+    assert
+      .dom('[data-test-rfc-error]')
+      .containsText('banana', 'the invalid id is named in the error message');
+  });
+
   test('shows error substate when fetching a single RFC fails', async function (assert) {
     this.owner.unregister('source:rfc');
     this.owner.register(
