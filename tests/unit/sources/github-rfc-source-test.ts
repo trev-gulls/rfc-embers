@@ -169,6 +169,41 @@ module('Unit | Source | GitHubRfcSource', function (hooks) {
     }
   });
 
+  test('fetchOne returns a single JSON:API document for the given id', async function (assert) {
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        url: 'https://api.github.com/repos/emberjs/rfcs/issues/724',
+        json: async () => MOCK_ISSUES[0],
+      }) as unknown as Response;
+    const source = new GitHubRfcSource();
+    const doc = await source.fetchOne('724');
+    assert.strictEqual(doc.data.id, '724');
+    assert.strictEqual(doc.data.type, 'rfc');
+    assert.strictEqual(doc.data.attributes['status'], 'released');
+  });
+
+  test('fetchOne includes the author resource for the issue', async function (assert) {
+    globalThis.fetch = async () =>
+      ({
+        ok: true,
+        url: 'https://api.github.com/repos/emberjs/rfcs/issues/724',
+        json: async () => MOCK_ISSUES[0],
+      }) as unknown as Response;
+    const source = new GitHubRfcSource();
+    const doc = await source.fetchOne('724');
+    assert.ok(doc.included, 'has included');
+    assert.strictEqual(doc.included?.length, 1, 'exactly one author resource');
+    assert.strictEqual(doc.included?.[0]?.id, 'gitKrystan');
+    assert.strictEqual(doc.included?.[0]?.type, 'author');
+  });
+
+  test('fetchOne throws on non-ok response', async function (assert) {
+    globalThis.fetch = async () => ({ ok: false, status: 404 }) as Response;
+    const source = new GitHubRfcSource();
+    await assert.rejects(source.fetchOne('999'), /404/);
+  });
+
   test('fetchAll warns when exactly 100 issues are returned', async function (assert) {
     const hundredIssues = Array.from({ length: 100 }, (_, i) => ({
       number: i + 1,
