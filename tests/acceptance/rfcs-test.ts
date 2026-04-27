@@ -39,7 +39,7 @@ module('Acceptance | rfcs', function (hooks) {
   test('shows loading substate while RFCs are fetching', async function (assert) {
     let resolveAll!: (doc: JsonApiCollectionDocument) => void;
 
-    this.owner.unregister('source:rfc');
+    (this.owner as unknown as { unregister(key: string): void }).unregister('source:rfc');
     this.owner.register(
       'source:rfc',
       {
@@ -73,7 +73,7 @@ module('Acceptance | rfcs', function (hooks) {
   });
 
   test('shows error substate when the source throws', async function (assert) {
-    this.owner.unregister('source:rfc');
+    (this.owner as unknown as { unregister(key: string): void }).unregister('source:rfc');
     this.owner.register(
       'source:rfc',
       {
