@@ -1,8 +1,9 @@
 ---
-status: planning
+status: finished
 branch: fix/unblock-v6-upgrade
 created: 2026-04-27
 updated: 2026-04-27
+merged: 2026-04-27
 blocked-by: []
 plan: docs/superpowers/plans/2026-04-27-unblock-v6-upgrade.md
 see-also:
