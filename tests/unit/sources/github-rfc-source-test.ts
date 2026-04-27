@@ -50,9 +50,18 @@ module('Unit | Source | GitHubRfcSource', function (hooks) {
   test('fetchAll maps GitHub labels to RFC status correctly', async function (assert) {
     const source = new GitHubRfcSource();
     const doc = await source.fetchAll();
-    assert.strictEqual(doc.data.find((i) => i.id === '724')?.attributes['status'], 'released');
-    assert.strictEqual(doc.data.find((i) => i.id === '883')?.attributes['status'], 'accepted');
-    assert.strictEqual(doc.data.find((i) => i.id === '900')?.attributes['status'], 'proposed');
+    assert.strictEqual(
+      doc.data.find((i) => i.id === '724')?.attributes['status'],
+      'released',
+    );
+    assert.strictEqual(
+      doc.data.find((i) => i.id === '883')?.attributes['status'],
+      'accepted',
+    );
+    assert.strictEqual(
+      doc.data.find((i) => i.id === '900')?.attributes['status'],
+      'proposed',
+    );
   });
 
   test('fetchAll deduplicates and includes author resources', async function (assert) {
@@ -158,7 +167,7 @@ module('Unit | Source | GitHubRfcSource', function (hooks) {
       });
 
     // Replace setTimeout so the abort fires on the next tick rather than after 10 s
-    globalThis.setTimeout = ((fn: () => void, _delay: number) =>
+    globalThis.setTimeout = ((fn: () => void, _: number) =>
       origSetTimeout(fn, 0)) as typeof setTimeout;
 
     const source = new GitHubRfcSource();

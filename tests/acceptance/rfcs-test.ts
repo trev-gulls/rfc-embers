@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupApplicationTest } from 'rfc-embers/tests/helpers';
-import { visit, currentURL, click, waitFor, settled } from '@ember/test-helpers';
+import { visit, currentURL, click, waitFor } from '@ember/test-helpers';
 import type { JsonApiCollectionDocument } from 'rfc-embers/gateways/rfc-gateway';
 import InMemoryRfcSource from 'rfc-embers/tests/app/sources/in-memory-rfc-source';
 
@@ -39,7 +39,9 @@ module('Acceptance | rfcs', function (hooks) {
   test('shows loading substate while RFCs are fetching', async function (assert) {
     let resolveAll!: (doc: JsonApiCollectionDocument) => void;
 
-    (this.owner as unknown as { unregister(key: string): void }).unregister('source:rfc');
+    (this.owner as unknown as { unregister(key: string): void }).unregister(
+      'source:rfc',
+    );
     this.owner.register(
       'source:rfc',
       {
@@ -73,7 +75,9 @@ module('Acceptance | rfcs', function (hooks) {
   });
 
   test('shows error substate when the source throws', async function (assert) {
-    (this.owner as unknown as { unregister(key: string): void }).unregister('source:rfc');
+    (this.owner as unknown as { unregister(key: string): void }).unregister(
+      'source:rfc',
+    );
     this.owner.register(
       'source:rfc',
       {
@@ -87,7 +91,9 @@ module('Acceptance | rfcs', function (hooks) {
       { instantiate: false },
     );
     await visit('/rfcs');
-    assert.dom('[data-test-rfcs-error]').exists('rfcs error substate is rendered');
+    assert
+      .dom('[data-test-rfcs-error]')
+      .exists('rfcs error substate is rendered');
     assert
       .dom('[data-test-rfcs-error]')
       .containsText('network failure', 'error message is surfaced');

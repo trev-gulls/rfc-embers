@@ -46,6 +46,10 @@ module('Unit | Controller | rfcs', function (hooks) {
     controller.activeStatus = null;
     assert.strictEqual(controller.filteredRfcs.length, 2, 'all when null');
     controller.activeStatus = 'released';
-    assert.strictEqual(controller.filteredRfcs.length, 1, 'filtered after change');
+    assert.strictEqual(
+      controller.filteredRfcs.length,
+      1,
+      'filtered after change',
+    );
   });
 });

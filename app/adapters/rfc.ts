@@ -21,7 +21,11 @@ export default class RfcAdapter extends JSONAPIAdapter {
   // @ts-expect-error: EmberData's adapter chain returns RSVP.Promise which carries a 'new'
   // constructor signature; native async returns platform Promise which lacks it. Runtime is
   // correct — remove this suppression if EmberData drops RSVP from its type definitions.
-  async query(_store: unknown, _type: unknown, _params: Record<string, unknown>) {
+  async query(
+    _store: unknown,
+    _type: unknown,
+    _params: Record<string, unknown>,
+  ) {
     return this.gateway.fetchAll();
   }
 

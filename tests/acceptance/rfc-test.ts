@@ -53,7 +53,9 @@ module('Acceptance | rfc detail', function (hooks) {
   });
 
   test('shows error substate when fetching a single RFC fails', async function (assert) {
-    (this.owner as unknown as { unregister(key: string): void }).unregister('source:rfc');
+    (this.owner as unknown as { unregister(key: string): void }).unregister(
+      'source:rfc',
+    );
     this.owner.register(
       'source:rfc',
       {
@@ -65,7 +67,9 @@ module('Acceptance | rfc detail', function (hooks) {
       { instantiate: false },
     );
     await visit('/rfcs/724');
-    assert.dom('[data-test-rfc-error]').exists('rfc error substate is rendered');
+    assert
+      .dom('[data-test-rfc-error]')
+      .exists('rfc error substate is rendered');
     assert
       .dom('[data-test-rfc-error]')
       .containsText('not found', 'error message is surfaced');

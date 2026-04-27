@@ -2,7 +2,6 @@ import type RfcGateway from 'rfc-embers/gateways/rfc-gateway';
 import type {
   JsonApiCollectionDocument,
   JsonApiSingularDocument,
-  JsonApiResource,
 } from 'rfc-embers/gateways/rfc-gateway';
 
 const FIXTURES: JsonApiCollectionDocument = {
