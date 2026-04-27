@@ -1,7 +1,12 @@
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Author from './author';
 
-export const RFC_STATUSES = ['proposed', 'accepted', 'released', 'closed'] as const;
+export const RFC_STATUSES = [
+  'proposed',
+  'accepted',
+  'released',
+  'closed',
+] as const;
 export type RfcStatus = (typeof RFC_STATUSES)[number];
 
 export default class Rfc extends Model {
