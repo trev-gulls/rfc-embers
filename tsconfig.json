@@ -9,6 +9,10 @@
       "rfc-embers/tests/*": ["tests/*"],
       "rfc-embers/*": ["app/*"],
       "*": ["types/*"]
-    }
+    },
+    "types": [
+      "@embroider/core/virtual",
+      "vite/client"
+    ]
   }
 }
