@@ -6,7 +6,7 @@
 
 **Architecture:** The `ember-data` umbrella package already auto-configures a `RequestManager` with `LegacyNetworkHandler` — no store service changes needed. The migration replaces `@ember-data/*` subpackage imports with `ember-data/*` consolidated imports, and replaces `store.findRecord`/`store.query` call sites with `store.request()` + WarpDrive builders from `@ember-data/json-api/request`. `RfcAdapter`, `RfcSerializer`, and the `RfcGateway` boundary are structurally untouched.
 
-**Tech Stack:** Ember 6.12, EmberData 5.8 → 6.x, WarpDrive `LegacyNetworkHandler`, `@ember-data/json-api/request` builders, QUnit, Bun
+**Tech Stack:** Ember 6.12, EmberData 5.8 → 6.x, WarpDrive `LegacyNetworkHandler`, `@ember-data/json-api/request` builders, QUnit, Node/npm
 
 ---
 
@@ -203,7 +203,7 @@ module('Unit | Route | rfc', function (hooks) {
 - [ ] **Step 3: Run tests — verify both new test modules pass**
 
 ```bash
-bun run test:ember 2>&1 | grep -E "(PASS|FAIL|Unit \| Route)"
+npm run test:ember 2>&1 | grep -E "(PASS|FAIL|Unit \| Route)"
 ```
 
 Expected: all four new tests show as passing. No failures. Fix anything that fails before continuing.
@@ -271,8 +271,8 @@ module('Unit | Adapter | rfc', function (hooks) {
           fetchAllCalled = true;
           return expectedDocument;
         },
-        // gateway getter requires both methods present
-        fetchOne: async () => ({ data: null, included: [] }),
+        // gateway getter requires both methods present; use a valid no-op shape
+        fetchOne: async () => ({ data: { id: '', type: 'rfc', attributes: {} }, included: [] }),
       },
       { instantiate: false },
     );
@@ -327,7 +327,7 @@ module('Unit | Adapter | rfc', function (hooks) {
 - [ ] **Step 2: Run tests — verify all adapter tests pass**
 
 ```bash
-bun run test:ember 2>&1 | grep -E "(PASS|FAIL|Unit \| Adapter)"
+npm run test:ember 2>&1 | grep -E "(PASS|FAIL|Unit \| Adapter)"
 ```
 
 Expected: all three adapter tests pass (existing `it exists` + two new ones).
@@ -418,7 +418,7 @@ export default class ApplicationSerializer extends JSONAPISerializer {}
 - [ ] **Step 4: Run tests — verify all tests still pass**
 
 ```bash
-bun run test:ember
+npm run test:ember
 ```
 
 Expected: all existing tests pass. Look for the string `ember-data:deprecate-legacy-imports` in the output — it should no longer appear for the adapter/serializer files. If it still appears, check the output for which file is still importing from `@ember-data/*`.
@@ -448,7 +448,7 @@ No behavior change."
 - [ ] **Step 1: Check the latest available ember-data 6.x version**
 
 ```bash
-bun info ember-data | grep -E "^  [0-9]+\." | tail -20
+npm view ember-data versions --json | node -e "const v=JSON.parse(require('fs').readFileSync(0,'utf8'));v.filter(x=>x.startsWith('6.')).forEach(x=>console.log(x))"
 ```
 
 Look for the latest `6.x.y` release. Use `~6.12.0` if available (to match `ember-source: ~6.12.0`). Use the highest available 6.x if 6.12 is not yet released.
@@ -456,8 +456,8 @@ Look for the latest `6.x.y` release. Use `~6.12.0` if available (to match `ember
 - [ ] **Step 2: Upgrade ember-data and remove @types shims**
 
 ```bash
-bun add -D ember-data@~6.12.0
-bun remove @types/ember-data__adapter @types/ember-data__model @types/ember-data__serializer @types/ember-data__store
+npm install --save-dev ember-data@~6.12.0
+npm remove @types/ember-data__adapter @types/ember-data__model @types/ember-data__serializer @types/ember-data__store
 ```
 
 If `ember-data@~6.12.0` is not found, substitute the actual latest 6.x version from Step 1.
@@ -465,7 +465,7 @@ If `ember-data@~6.12.0` is not found, substitute the actual latest 6.x version f
 - [ ] **Step 3: Run type-check — verify it passes**
 
 ```bash
-bun run lint:types
+npm run lint:types
 ```
 
 Expected: exits 0. If it fails with type errors referencing `@ember-data/model`, the model files may need their imports updated — see the note in Step 4 below.
@@ -473,7 +473,7 @@ Expected: exits 0. If it fails with type errors referencing `@ember-data/model`,
 - [ ] **Step 4: Check model files for deprecation warnings**
 
 ```bash
-bun run test:ember 2>&1 | grep "deprecate-legacy-imports"
+npm run test:ember 2>&1 | grep "deprecate-legacy-imports"
 ```
 
 If warnings appear referencing `app/models/rfc.ts` or `app/models/author.ts`, update both files: change `import Model, { attr, belongsTo } from '@ember-data/model'` → `import Model, { attr, belongsTo } from 'ember-data/model'` (and `import Model, { attr }` similarly). The `declare module 'ember-data/types/registries/model'` block in each file stays unchanged.
@@ -483,7 +483,7 @@ If no warnings appear, skip this change.
 - [ ] **Step 5: Run full tests — verify everything still passes**
 
 ```bash
-bun run test:ember
+npm run test:ember
 ```
 
 Expected: all tests pass. Resolve any EmberData 6 breaking changes before continuing (check the [WarpDrive changelog](https://github.com/emberjs/data/releases) if unexpected failures appear).
@@ -491,8 +491,8 @@ Expected: all tests pass. Resolve any EmberData 6 breaking changes before contin
 - [ ] **Step 6: Commit**
 
 ```bash
-# Stage package.json and bun.lock (and model files if they were changed in Step 4)
-git add package.json bun.lock
+# Stage package.json and package-lock.json (and model files if they were changed in Step 4)
+git add package.json package-lock.json
 git commit -m "chore: bump ember-data to ~6.x, remove legacy @types shims
 
 EmberData 6 ships its own types from the consolidated ember-data package,
@@ -563,7 +563,7 @@ The `findRecord('rfc', id)` builder sets `op: 'findRecord'`.
 - [ ] **Step 3: Run tests — verify all tests still pass**
 
 ```bash
-bun run test:ember
+npm run test:ember
 ```
 
 Expected: all tests pass including the regression net from Tasks 1–2. The four route tests and two new adapter tests should all be green.
@@ -571,7 +571,7 @@ Expected: all tests pass including the regression net from Tasks 1–2. The four
 - [ ] **Step 4: Confirm both deprecations are cleared**
 
 ```bash
-bun run test:ember 2>&1 | grep -E "deprecate-legacy-imports|deprecate-legacy-request-methods"
+npm run test:ember 2>&1 | grep -E "deprecate-legacy-imports|deprecate-legacy-request-methods"
 ```
 
 Expected: no output (both deprecation strings absent). If either still appears, check the grep output for which file is the source and fix it before continuing.
@@ -579,7 +579,7 @@ Expected: no output (both deprecation strings absent). If either still appears, 
 - [ ] **Step 5: Run type-check**
 
 ```bash
-bun run lint:types
+npm run lint:types
 ```
 
 Expected: exits 0. If `store.request` is not found on the `Store` type, ensure the import changed from `@ember-data/store` to `ember-data/store` (the consolidated type includes `request()`).
@@ -616,16 +616,16 @@ Expected: no output (all imports consolidated). If the umbrella `ember-data@6.x`
 these as peer/bundled packages, they can be removed from `dependencies`. Run:
 
 ```bash
-bun remove @ember-data/adapter @ember-data/json-api @ember-data/serializer
-bun run test:ember
+npm remove @ember-data/adapter @ember-data/json-api @ember-data/serializer
+npm run test:ember
 ```
 
-If tests break after removal, add them back (`bun add @ember-data/adapter @ember-data/json-api @ember-data/serializer`) — they're still required as explicit deps in this version.
+If tests break after removal, add them back (`npm install @ember-data/adapter @ember-data/json-api @ember-data/serializer`) — they're still required as explicit deps in this version.
 
 - [ ] **Step 2: Full acceptance run**
 
 ```bash
-bun run test:ember 2>&1 | grep -E "deprecate-legacy-imports|deprecate-legacy-request-methods|FAIL"
+npm run test:ember 2>&1 | grep -E "deprecate-legacy-imports|deprecate-legacy-request-methods|FAIL"
 ```
 
 Expected: no output. All three strings absent means both deprecations cleared and no test failures.
@@ -633,21 +633,21 @@ Expected: no output. All three strings absent means both deprecations cleared an
 - [ ] **Step 3: Full lint pass**
 
 ```bash
-bun run lint:types && bun run lint:js
+npm run lint:types && npm run lint:js
 ```
 
 Expected: both exit 0.
 
 - [ ] **Step 4: Manual smoke test**
 
-Start the dev server (`bun run start`), open the RFC list route — verify RFCs load from GitHub. Click into any RFC detail — verify the RFC page loads. Both routes must display live data to pass.
+Start the dev server (`npm start`), open the RFC list route — verify RFCs load from GitHub. Click into any RFC detail — verify the RFC page loads. Both routes must display live data to pass.
 
 - [ ] **Step 5: Commit any cleanup changes and update tracking doc**
 
 If any changes were made in Step 1 (subpackage removal):
 
 ```bash
-git add package.json bun.lock
+git add package.json package-lock.json
 git commit -m "chore: remove explicit @ember-data subpackage deps (subsumed by ember-data 6)"
 ```
 
