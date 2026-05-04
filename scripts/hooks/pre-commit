@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+ROOT=$(git rev-parse --show-toplevel)
+cd "$ROOT"
+
+FAILED=false
+
+JS_FILES=()
+while IFS= read -r f; do [[ -n "$f" ]] && JS_FILES+=("$f"); done \
+  < <(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(js|ts|gjs|gts)$' || true)
+
+HBS_FILES=()
+while IFS= read -r f; do [[ -n "$f" ]] && HBS_FILES+=("$f"); done \
+  < <(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.hbs$' || true)
+
+CSS_FILES=()
+while IFS= read -r f; do [[ -n "$f" ]] && CSS_FILES+=("$f"); done \
+  < <(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.css$' || true)
+
+if [[ ${#JS_FILES[@]} -gt 0 ]]; then
+  ./node_modules/.bin/eslint --fix "${JS_FILES[@]}" || true
+  git add "${JS_FILES[@]}"
+  ./node_modules/.bin/eslint "${JS_FILES[@]}" || FAILED=true
+fi
+
+if [[ ${#HBS_FILES[@]} -gt 0 ]]; then
+  ./node_modules/.bin/ember-template-lint --fix "${HBS_FILES[@]}" || true
+  git add "${HBS_FILES[@]}"
+  ./node_modules/.bin/ember-template-lint "${HBS_FILES[@]}" || FAILED=true
+fi
+
+if [[ ${#CSS_FILES[@]} -gt 0 ]]; then
+  ./node_modules/.bin/stylelint --fix "${CSS_FILES[@]}" || true
+  git add "${CSS_FILES[@]}"
+  ./node_modules/.bin/stylelint "${CSS_FILES[@]}" || FAILED=true
+fi
+
+if [[ "$FAILED" == true ]]; then
+  printf '\nCommit rejected: unfixable lint errors remain above.\n'
+  exit 1
+fi
