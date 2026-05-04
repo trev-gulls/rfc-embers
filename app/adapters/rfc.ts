@@ -1,4 +1,4 @@
-import JSONAPIAdapter from 'ember-data/adapter/json-api';
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import { getOwner } from '@ember/application';
 import type RfcGateway from '../gateways/rfc-gateway';
 
