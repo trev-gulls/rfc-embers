@@ -17,8 +17,15 @@ module('Unit | Adapter | rfc', function (hooks) {
         {
           id: '1',
           type: 'rfc',
-          attributes: { title: 'Test RFC', number: 1, status: 'proposed', summary: '' },
-          relationships: { author: { data: { id: 'testuser', type: 'author' } } },
+          attributes: {
+            title: 'Test RFC',
+            number: 1,
+            status: 'proposed',
+            summary: '',
+          },
+          relationships: {
+            author: { data: { id: 'testuser', type: 'author' } },
+          },
         },
       ],
       included: [
@@ -38,7 +45,10 @@ module('Unit | Adapter | rfc', function (hooks) {
           return expectedDocument;
         },
         // gateway getter requires both methods present; use a valid no-op shape
-        fetchOne: async () => ({ data: { id: '', type: 'rfc', attributes: {} }, included: [] }),
+        fetchOne: async () => ({
+          data: { id: '', type: 'rfc', attributes: {} },
+          included: [],
+        }),
       },
       { instantiate: false },
     );
@@ -47,7 +57,11 @@ module('Unit | Adapter | rfc', function (hooks) {
     const result = await adapter.query(undefined, undefined, {});
 
     assert.true(fetchAllCalled, 'gateway.fetchAll() was called');
-    assert.deepEqual(result, expectedDocument, 'returns the JSON:API document from the gateway');
+    assert.deepEqual(
+      result,
+      expectedDocument,
+      'returns the JSON:API document from the gateway',
+    );
   });
 
   test('findRecord() calls gateway.fetchOne() with the correct id', async function (assert) {
@@ -56,7 +70,12 @@ module('Unit | Adapter | rfc', function (hooks) {
       data: {
         id: '99',
         type: 'rfc',
-        attributes: { title: 'Numeric Id RFC', number: 99, status: 'proposed', summary: '' },
+        attributes: {
+          title: 'Numeric Id RFC',
+          number: 99,
+          status: 'proposed',
+          summary: '',
+        },
         relationships: { author: { data: { id: 'testuser', type: 'author' } } },
       },
       included: [
@@ -84,7 +103,15 @@ module('Unit | Adapter | rfc', function (hooks) {
     const adapter = this.owner.lookup('adapter:rfc');
     const result = await adapter.findRecord(undefined, undefined, '99');
 
-    assert.strictEqual(receivedId, '99', 'gateway.fetchOne() was called with the correct id');
-    assert.deepEqual(result, expectedDocument, 'returns the JSON:API document from the gateway');
+    assert.strictEqual(
+      receivedId,
+      '99',
+      'gateway.fetchOne() was called with the correct id',
+    );
+    assert.deepEqual(
+      result,
+      expectedDocument,
+      'returns the JSON:API document from the gateway',
+    );
   });
 });

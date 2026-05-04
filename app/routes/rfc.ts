@@ -12,7 +12,10 @@ export default class RfcRoute extends Route {
         `Invalid RFC id: "${params.rfc_id}". RFC ids must be numeric.`,
       );
     }
-    const { content } = await (this.store as any).request(findRecord('rfc', params.rfc_id, { reload: true }));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { content } = await (this.store as any).request(
+      findRecord('rfc', params.rfc_id, { reload: true }),
+    );
     return content;
   }
 }

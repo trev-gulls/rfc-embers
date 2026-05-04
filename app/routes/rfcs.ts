@@ -7,6 +7,7 @@ export default class RfcsRoute extends Route {
   @service declare store: Store;
 
   async model() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { content } = await (this.store as any).request(query('rfc', {}));
     return content;
   }
