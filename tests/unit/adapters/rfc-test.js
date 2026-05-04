@@ -37,8 +37,8 @@ module('Unit | Adapter | rfc', function (hooks) {
           fetchAllCalled = true;
           return expectedDocument;
         },
-        // gateway getter requires both methods present
-        fetchOne: async () => ({ data: null, included: [] }),
+        // gateway getter requires both methods present; use a valid no-op shape
+        fetchOne: async () => ({ data: { id: '', type: 'rfc', attributes: {} }, included: [] }),
       },
       { instantiate: false },
     );
