@@ -35,21 +35,23 @@ ship with EmberData explain the new request-builder pattern and the migration pa
 
 ## Acceptance Criteria
 
-- [x] All `@ember-data/*` package imports moved to consolidated `ember-data` imports;
-      the `@ember-data/{adapter,json-api,serializer}` packages removed from
-      `package.json` dependencies (or kept only if still required as transitive deps)
-- [x] All `store.findRecord` / `store.findAll` call sites converted to the WarpDrive
-      `store.request(...)` builder API (with the appropriate request manager + handler
-      wired up in `app/services/store.ts` or equivalent)
-- [x] `ember-data` upgraded to ~6.x
+- [ ] All `@ember-data/*` package imports moved to consolidated `ember-data` imports —
+      DEFERRED: investigated and confirmed the current `@ember-data/adapter/json-api` /
+      `@ember-data/serializer/json-api` imports do NOT trigger `ember-data:deprecate-legacy-imports`
+      in 5.8.x; that deprecation fires only for the old `ember-data/adapters/*` paths
+      (which this app never used). The `ember-data` umbrella 6.x package does not exist
+      yet on npm (latest is 5.8.2); deferred until a 6.x release is available.
+- [x] All `store.findRecord` / `store.query` call sites converted to the WarpDrive
+      `store.request(...)` builder API using `@ember-data/legacy-compat/builders`;
+      `LegacyNetworkHandler` (auto-configured by the ember-data umbrella) bridges
+      requests back to `RfcAdapter`
+- [ ] `ember-data` upgraded to ~6.x — DEFERRED: no 6.x release exists yet on npm
 - [x] Zero deprecation warnings for `warp-drive:deprecate-legacy-request-methods`
-      (routes migrated); `ember-data:deprecate-legacy-imports` deprecation scope
-      investigated — the current `@ember-data/adapter/json-api` and
-      `@ember-data/serializer/json-api` imports do NOT trigger this deprecation in
-      EmberData 5.8.x (fires only for old `ember-data/adapters/*` paths, which app
-      never uses); transform deprecations fire during build but are unrelated to
-      import patterns
-- [x] `npm run lint:types` exits 0 (passes cleanly)
+      from route call sites; serializer tests call `store.serializerFor()` directly
+      which still fires the deprecation — that is a test-layer issue, not a production
+      call site
+- [x] `npm run lint:types` exits 0
+- [x] `npm run test:ember` green — 63/63 tests passing
 - [ ] Manual smoke test: RFC list and detail routes still load real data from GitHub
       (pending: requires dev server, managed by user)
 
@@ -90,17 +92,26 @@ implementation tests fall out as needed.
 
 ## Completion Notes
 
-**Automated checks (passing):**
+**Automated checks (all passing):**
 
 - Routes: `app/routes/rfcs.ts` and `app/routes/rfc.ts` migrated from `store.findRecord()`
-  / `store.query()` to `store.request(...)` (commit 0cebe12)
-- Imports: Adapter/serializer imports consolidated to `ember-data` entry point
-- TypeScript: `npm run lint:types` exits cleanly (0)
+  / `store.query()` to `store.request()` + `@ember-data/legacy-compat/builders`
+- `npm run test:ember` — 63/63 green
+- `npm run lint:types` — exits 0
 
-**Test execution:**
+**Key discovery during implementation:**
 
-The `npm run test:ember` command encountered an EPERM (operation not permitted) system
-error when attempting to bind to port 7357 for the test server. This is a system-level
-port binding constraint, not a test suite failure. The compiled assets built successfully,
-indicating the codebase is in a healthy state ready for manual smoke test verification
-via the dev server (which is user-managed).
+The `ember-data:deprecate-legacy-imports` deprecation fires for OLD `ember-data/adapters/*`
+consolidated paths (e.g. `ember-data/adapters/json-api`) — telling you to use
+`@ember-data/adapter/json-api` instead. This app already used `@ember-data/adapter/json-api`
+so the imports were already correct and needed no changes. The spec's assumption that the
+deprecation targeted `@ember-data/*` subpackages was backwards.
+
+The `@ember-data/json-api/request` builders (intended for native WarpDrive handlers) set
+a URL on the request, which causes `LegacyNetworkHandler` to bypass the adapter and fall
+through to real Fetch. The correct builders for adapter-backed stores are in
+`@ember-data/legacy-compat/builders` — these produce URL-free requests that
+`LegacyNetworkHandler` routes to the adapter.
+
+**Pending (user):** manual smoke test — start dev server, verify RFC list and detail routes
+load real data from GitHub.
