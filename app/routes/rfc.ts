@@ -1,5 +1,6 @@
 import Route from '@ember/routing/route';
 import { service } from '@ember/service';
+import { findRecord } from '@ember-data/legacy-compat/builders';
 import type Store from '@ember-data/store';
 
 export default class RfcRoute extends Route {
@@ -11,6 +12,7 @@ export default class RfcRoute extends Route {
         `Invalid RFC id: "${params.rfc_id}". RFC ids must be numeric.`,
       );
     }
-    return this.store.findRecord('rfc', params.rfc_id, { reload: true });
+    const { content } = await (this.store as any).request(findRecord('rfc', params.rfc_id, { reload: true }));
+    return content;
   }
 }
