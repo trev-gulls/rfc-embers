@@ -1,7 +1,7 @@
 ---
 status: done
 created: 2026-05-03
-updated: 2026-05-04
+updated: 2026-05-05
 blocked-by: []
 see-also:
   - docs/work/finished/2026-04-15-ember-v6-upgrade.md
@@ -52,8 +52,7 @@ ship with EmberData explain the new request-builder pattern and the migration pa
       call site
 - [x] `npm run lint:types` exits 0
 - [x] `npm run test:ember` green — 63/63 tests passing
-- [ ] Manual smoke test: RFC list and detail routes still load real data from GitHub
-      (pending: requires dev server, managed by user)
+- [x] Manual smoke test: RFC list and detail routes still load real data from GitHub
 
 ## Notes
 
@@ -113,5 +112,4 @@ through to real Fetch. The correct builders for adapter-backed stores are in
 `@ember-data/legacy-compat/builders` — these produce URL-free requests that
 `LegacyNetworkHandler` routes to the adapter.
 
-**Pending (user):** manual smoke test — start dev server, verify RFC list and detail routes
-load real data from GitHub.
+**Manual smoke test (2026-05-05):** RFC list and detail routes confirmed loading live data from GitHub. All acceptance criteria met.
